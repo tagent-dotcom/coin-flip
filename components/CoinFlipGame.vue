@@ -29,19 +29,7 @@
     </div>
 
     <!-- Golden Finger Header -->
-    <div class="relative z-10 text-center py-3">
-      <div class="casino-header">
-        <div class="header-stars">
-          <div class="star star-1">⭐</div>
-          <div class="star star-2">⭐</div>
-          <div class="star star-3">⭐</div>
-        </div>
-        <h1 class="casino-title">
-          <span class="golden-text"></span>
-        </h1>
-         
-      </div>
-    </div>
+   
 
     <!-- Falling Tokens Effect -->
     <div v-if="showTokens" class="tokens-container pointer-events-none">
@@ -223,8 +211,21 @@
       </button>
       </div>
 
+      <div class="relative z-10 text-center py-3">
+        <div class="casino-header">
+          <div class="header-stars">
+            <div class="star star-1">⭐</div>
+            <div class="star star-2">⭐</div>
+            <div class="star star-3">⭐</div>
+          </div>
+          <h1 class="casino-title">
+            <span class="golden-text"></span>
+          </h1>
+           
+        </div>
+      </div>
       <!-- Betting History -->
-      <div class="casino-history-section">
+      <div class="casino-history-section mt-4">
         <div class="history-header">
           <h3 class="history-title">🏆 RECENT GAMES</h3>
         </div>
