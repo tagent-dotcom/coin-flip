@@ -58,18 +58,7 @@
         <WalletConnection />
       </div>
 
-      <!-- Game Stats Bar -->
-      <div class="casino-stats-bar mb-4">
-        <div class="stat-item">
-          <div class="stat-label">BALANCE</div>
-          <div class="stat-value">{{ formatBalance(gameState.balance.value) }}</div>
-        </div>
-        
-        <div class="stat-item">
-          <div class="stat-label">ROUND</div>
-          <div class="stat-value">{{ gameState.history.value.length + 1 }}</div>
-        </div>
-      </div>
+      
 
       <!-- Main Coin Container -->
       <div class="casino-coin-container mb-6">
@@ -211,6 +200,18 @@
       </button>
       </div>
 
+      <!-- Game Stats Bar -->
+      <div class="casino-stats-bar mb-4">
+        <div class="stat-item">
+          <div class="stat-label">BALANCE</div>
+          <div class="stat-value">{{ formatBalance(gameState.balance.value) }}</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-label">ROUND</div>
+          <div class="stat-value">{{ gameState.history.value.length + 1 }}</div>
+        </div>
+      </div>
       <div class="relative z-10 text-center py-3">
         <div class="casino-header">
           <div class="header-stars">
