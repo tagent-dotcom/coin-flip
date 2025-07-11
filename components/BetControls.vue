@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 z-50">
     <!-- Choose Your Side -->
     <div>
       <h3 class="text-gray-300 text-xs font-medium mb-2 text-center">CHOOSE YOUR SIDE</h3>
