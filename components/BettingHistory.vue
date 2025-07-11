@@ -1,154 +1,133 @@
 <template>
-  <div class="bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-xl rounded-2xl border border-gray-700/50 overflow-hidden shadow-2xl">
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-b border-gray-700/50 px-6 py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4zm2.5 2.5h-15V5h15v14.5zm0-16.5h-15c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
-            </svg>
+  <div class="casino-history-container">
+    <div v-if="!history.length" class="empty-history">
+      <div class="empty-icon">🎰</div>
+      <p class="empty-text">No games played yet</p>
+      <p class="empty-subtext">Start playing to see your history!</p>
+    </div>
+    
+    <div v-else class="history-grid">
+      <div 
+        v-for="(game, index) in displayedHistory" 
+        :key="index"
+        class="history-item"
+        :class="{
+          'won': game.won,
+          'lost': !game.won,
+          'recent': index === 0
+        }"
+      >
+        <div class="game-header">
+          <div class="game-result">
+            <div class="result-icon">
+              <div v-if="game.won" class="win-icon">🏆</div>
+              <div v-else class="lose-icon">💔</div>
+            </div>
+            <div class="result-text">
+              <span class="result-label">{{ game.won ? 'WIN' : 'LOSE' }}</span>
+              <span class="result-side">{{ game.selectedSide?.toUpperCase() }}</span>
+            </div>
           </div>
-          <div>
-            <h3 class="text-lg font-bold text-white">My Bets</h3>
-            <p class="text-xs text-gray-400">Recent betting activity</p>
+          <div class="game-time">{{ formatTime(game.timestamp) }}</div>
+        </div>
+        
+        <div class="game-details">
+          <div class="detail-item">
+            <span class="detail-label">Bet:</span>
+            <span class="detail-value bet-amount">{{ formatAmount(game.betAmount) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Result:</span>
+            <span class="detail-value">{{ game.result?.toUpperCase() }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Payout:</span>
+            <span class="detail-value" :class="{ 'payout-win': game.won, 'payout-lose': !game.won }">
+              {{ game.won ? '+' : '-' }}{{ formatAmount(game.payout) }}
+            </span>
           </div>
         </div>
-        <div class="text-right">
-          <div class="text-sm font-semibold text-white">{{ history.length }}</div>
-          <div class="text-xs text-gray-400">Total Games</div>
+        
+        <div class="game-footer">
+          <div class="coin-visual">
+            <div class="mini-coin" :class="game.result">
+              <div class="coin-face">
+                <NuxtImg 
+                  :src="game.result === 'heads' ? '/happy-pepe.png' : '/sad-pepe.png'"
+                  :alt="game.result === 'heads' ? 'Happy Pepe' : 'Sad Pepe'"
+                  class="mini-pepe-image"
+                  width="24"
+                  height="24"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="multiplier">
+            <span class="multiplier-text">{{ game.multiplier || 1.94 }}x</span>
+          </div>
         </div>
+        
+        <!-- Glow effect for recent wins -->
+        <div v-if="game.won && index === 0" class="win-glow"></div>
       </div>
     </div>
-
-    <!-- Content -->
-    <div class="p-6">
-      <div v-if="history.length === 0" class="text-center py-12">
-        <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl flex items-center justify-center">
-          <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-          </svg>
-        </div>
-        <h4 class="text-white font-semibold mb-2">No bets yet</h4>
-        <p class="text-gray-400 text-sm">Start flipping to see your betting history</p>
-      </div>
-      
-      <div v-else class="space-y-3 max-h-80 overflow-y-auto pr-2">
-        <div
-          v-for="(bet, index) in history.slice(0, 15)"
-          :key="bet.id"
-          class="group relative bg-gradient-to-r from-gray-800/50 to-gray-700/30 hover:from-gray-700/60 hover:to-gray-600/40 rounded-xl p-4 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg border border-gray-700/30 hover:border-gray-600/50"
-          :style="{ animationDelay: `${index * 50}ms` }"
-        >
-          <!-- Win/Loss Indicator -->
-          <div 
-            class="absolute left-0 top-4 bottom-4 w-1 rounded-r-full"
-            :class="bet.won ? 'bg-gradient-to-b from-green-400 to-green-500' : 'bg-gradient-to-b from-red-400 to-red-500'"
-          ></div>
-
-          <div class="flex items-center justify-between ml-4">
-            <!-- Game Info -->
-            <div class="flex items-center space-x-4">
-              <!-- Result Icon with Animation -->
-              <div class="relative">
-                <div 
-                  class="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
-                  :class="bet.result === 'heads' 
-                    ? 'bg-gradient-to-br from-yellow-400/20 to-amber-500/20 border border-yellow-400/40' 
-                    : 'bg-gradient-to-br from-gray-400/20 to-gray-500/20 border border-gray-400/40'"
-                >
-                  <div 
-                    class="w-8 h-8 rounded-lg flex items-center justify-center"
-                    :class="bet.result === 'heads' 
-                      ? 'bg-gradient-to-br from-yellow-400 to-amber-500' 
-                      : 'bg-gradient-to-br from-gray-300 to-gray-500'"
-                  >
-                    <span class="text-black font-bold text-sm">
-                      {{ bet.result === 'heads' ? 'H' : 'T' }}
-                    </span>
-                  </div>
-                </div>
-                
-                <!-- Win/Loss Badge -->
-                <div 
-                  class="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
-                  :class="bet.won ? 'bg-green-500 text-white' : 'bg-red-500 text-white'"
-                >
-                  {{ bet.won ? '✓' : '✗' }}
-                </div>
-              </div>
-
-              <!-- Bet Details -->
-              <div>
-                <div class="flex items-center space-x-2 mb-1">
-                  <span class="text-white font-semibold text-sm">
-                    {{ bet.selectedSide.toUpperCase() }}
-                  </span>
-                  <span class="text-gray-500 text-xs">•</span>
-                  <span class="text-gray-300 text-sm font-medium">
-                    {{ formatTime(bet.timestamp) }}
-                  </span>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <div class="flex items-center space-x-1">
-                    <div class="w-3 h-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full"></div>
-                    <span class="text-gray-400 text-xs">{{ bet.betAmount }} tokens</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Payout with Enhanced Styling -->
-            <div class="text-right">
-              <div 
-                class="text-lg font-bold mb-1 transition-all duration-300"
-                :class="bet.won ? 'text-green-400 group-hover:text-green-300' : 'text-red-400 group-hover:text-red-300'"
-              >
-                {{ bet.won ? 'WIN' : 'LOSE' }}
-              </div>
-              <div 
-                class="px-3 py-1 rounded-lg text-sm font-bold transition-all duration-300"
-                :class="bet.payout > 0 
-                  ? 'text-green-400 bg-green-400/10 border border-green-400/30' 
-                  : 'text-red-400 bg-red-400/10 border border-red-400/30'"
-              >
-                {{ formatPayout(bet.payout) }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Hover Glow Effect -->
-          <div class="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-               :class="bet.won 
-                 ? 'bg-gradient-to-r from-green-400/5 to-transparent' 
-                 : 'bg-gradient-to-r from-red-400/5 to-transparent'">
-          </div>
-        </div>
-      </div>
+    
+    <!-- Show more button -->
+    <div v-if="history.length > displayLimit" class="show-more-container">
+      <button 
+        @click="showMore" 
+        class="show-more-btn"
+      >
+        <span>Show More</span>
+        <div class="btn-arrow">⬇</div>
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { GameResult } from '~/composables/useGameState'
+import { ref, computed } from 'vue'
 
-const props = defineProps<{
-  history: readonly GameResult[]
-}>()
-
-// Helper functions
-const formatPayout = (payout: number): string => {
-  const sign = payout > 0 ? '+' : ''
-  return `${sign}${new Intl.NumberFormat('en-US').format(payout)}`
+interface GameHistory {
+  id: string
+  betAmount: number
+  selectedSide: 'heads' | 'tails'
+  result: 'heads' | 'tails'
+  won: boolean
+  payout: number
+  timestamp: number
+  multiplier?: number
 }
 
-const formatTime = (timestamp: Date): string => {
-  const now = new Date()
-  const diff = now.getTime() - new Date(timestamp).getTime()
+const props = defineProps<{
+  history: GameHistory[]
+}>()
+
+const displayLimit = ref(6)
+
+const displayedHistory = computed(() => {
+  return props.history.slice(0, displayLimit.value)
+})
+
+const showMore = () => {
+  displayLimit.value += 6
+}
+
+const formatAmount = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  }).format(amount)
+}
+
+const formatTime = (timestamp: number) => {
+  const now = Date.now()
+  const diff = now - timestamp
   const minutes = Math.floor(diff / 60000)
   const hours = Math.floor(minutes / 60)
   const days = Math.floor(hours / 24)
-
+  
   if (days > 0) return `${days}d ago`
   if (hours > 0) return `${hours}h ago`
   if (minutes > 0) return `${minutes}m ago`
@@ -157,81 +136,425 @@ const formatTime = (timestamp: Date): string => {
 </script>
 
 <style scoped>
-/* Custom scrollbar */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
+.casino-history-container {
+  position: relative;
 }
 
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: rgba(55, 65, 81, 0.3);
-  border-radius: 3px;
+.empty-history {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.02));
+  border: 2px dashed rgba(255, 215, 0, 0.3);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #6366f1, #8b5cf6);
-  border-radius: 3px;
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: iconBounce 2s ease-in-out infinite;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #4f46e5, #7c3aed);
+.empty-text {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #FFD700;
+  margin-bottom: 0.5rem;
 }
 
-/* Staggered Animation */
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+.empty-subtext {
+  font-size: 0.9rem;
+  color: #FFA500;
+  font-weight: 500;
+}
+
+.history-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.history-item {
+  position: relative;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(255, 215, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 15px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.history-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+}
+
+.history-item.won {
+  border-color: rgba(34, 197, 94, 0.5);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(255, 215, 0, 0.05));
+}
+
+.history-item.lost {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(255, 215, 0, 0.05));
+}
+
+.history-item.recent {
+  border-color: #FFD700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.game-result {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.result-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.win-icon {
+  animation: victoryPulse 2s ease-in-out infinite;
+}
+
+.lose-icon {
+  animation: defeatPulse 2s ease-in-out infinite;
+}
+
+@keyframes victoryPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes defeatPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.result-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.result-label {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #FFD700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+.result-side {
+  font-size: 0.8rem;
+  color: #FFA500;
+  font-weight: 600;
+}
+
+.game-time {
+  font-size: 0.8rem;
+  color: #9CA3AF;
+  font-weight: 500;
+}
+
+.game-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: #D1D5DB;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+}
+
+.bet-amount {
+  color: #FFD700;
+  font-weight: 700;
+}
+
+.payout-win {
+  color: #22C55E;
+  font-weight: 700;
+}
+
+.payout-lose {
+  color: #EF4444;
+  font-weight: 700;
+}
+
+.game-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.coin-visual {
+  display: flex;
+  align-items: center;
+}
+
+.mini-coin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+  animation: miniCoinSpin 3s linear infinite;
+  overflow: hidden;
+}
+
+.mini-coin.tails {
+  background: linear-gradient(45deg, #1a1a2e, #16213e);
+}
+
+.mini-pepe-image {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
+}
+
+@keyframes miniCoinSpin {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.multiplier {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.1));
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 20px;
+  padding: 0.3rem 0.8rem;
+  backdrop-filter: blur(5px);
+}
+
+.multiplier-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #FFD700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+.win-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 15px;
+  background: linear-gradient(45deg, transparent, rgba(34, 197, 94, 0.1), transparent);
+  animation: winGlowMove 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes winGlowMove {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.show-more-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.show-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  color: #FFD700;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  margin: 0 auto;
+}
+
+.show-more-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+  border-color: #FFD700;
+}
+
+.btn-arrow {
+  transition: transform 0.3s ease;
+}
+
+.show-more-btn:hover .btn-arrow {
+  transform: translateY(2px);
+}
+
+@keyframes iconBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .empty-history {
+    padding: 2rem 1rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .empty-icon {
+    font-size: 2.5rem;
+  }
+  
+  .empty-text {
+    font-size: 1.1rem;
+  }
+  
+  .empty-subtext {
+    font-size: 0.8rem;
+  }
+  
+  .history-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .history-item {
+    padding: 0.875rem;
+    border-radius: 12px;
+  }
+  
+  .game-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+  }
+  
+  .result-icon .win-icon,
+  .result-icon .lose-icon {
+    font-size: 1.25rem;
+  }
+  
+  .result-label {
+    font-size: 1rem;
+  }
+  
+  .result-side {
+    font-size: 0.75rem;
+  }
+  
+  .game-time {
+    font-size: 0.75rem;
+  }
+  
+  .game-details {
+    gap: 0.375rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .detail-label {
+    font-size: 0.8rem;
+  }
+  
+  .detail-value {
+    font-size: 0.85rem;
+  }
+  
+  .game-footer {
+    padding-top: 0.75rem;
+  }
+  
+  .mini-coin {
+    width: 26px;
+    height: 26px;
+  }
+  
+  .mini-pepe-image {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .multiplier {
+    padding: 0.25rem 0.6rem;
+  }
+  
+  .multiplier-text {
+    font-size: 0.75rem;
+  }
+  
+  .show-more-container {
+    margin-top: 1.5rem;
+  }
+  
+  .show-more-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
   }
 }
 
-.group {
-  animation: slideInUp 0.4s ease-out forwards;
-  opacity: 0;
-}
-
-/* Glowing effect on hover */
-.group:hover .w-12 {
-  box-shadow: 0 0 20px rgba(var(--color), 0.3);
-}
-
-/* Pulse animation for win indicators */
-.bg-green-500 {
-  animation: pulse-green 2s ease-in-out infinite;
-}
-
-.bg-red-500 {
-  animation: pulse-red 2s ease-in-out infinite;
-}
-
-@keyframes pulse-green {
-  0%, 100% { 
-    background-color: rgb(34, 197, 94);
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+@media (max-width: 480px) {
+  .history-item {
+    padding: 0.75rem;
   }
-  50% { 
-    background-color: rgb(22, 163, 74);
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
+  
+  .result-label {
+    font-size: 0.95rem;
   }
-}
-
-@keyframes pulse-red {
-  0%, 100% { 
-    background-color: rgb(239, 68, 68);
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  
+  .result-side {
+    font-size: 0.7rem;
   }
-  50% { 
-    background-color: rgb(220, 38, 38);
-    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+  
+  .detail-label,
+  .detail-value {
+    font-size: 0.75rem;
   }
-}
-
-/* Modern scrollbar for Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #6366f1 rgba(55, 65, 81, 0.3);
+  
+  .mini-coin {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .mini-pepe-image {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .multiplier-text {
+    font-size: 0.7rem;
+  }
+  
+  .show-more-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
 }
 </style> 

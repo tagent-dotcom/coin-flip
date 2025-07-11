@@ -1,156 +1,235 @@
 <template>
-  <div class="min-h-screen bg-[#1a1d2e] text-white relative overflow-hidden">
-    <!-- Animated Background Lights -->
+  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative overflow-hidden">
+    <!-- Enhanced Casino Background -->
     <div class="absolute inset-0 pointer-events-none">
+      <!-- Golden Spotlights -->
+      <div class="spotlight-container">
+        <div class="spotlight spotlight-1"></div>
+        <div class="spotlight spotlight-2"></div>
+        <div class="spotlight spotlight-3"></div>
+      </div>
+      
+      <!-- Neon Casino Lights -->
       <div class="neon-lights">
         <div class="neon-circle neon-circle-1"></div>
         <div class="neon-circle neon-circle-2"></div>
         <div class="neon-circle neon-circle-3"></div>
         <div class="neon-circle neon-circle-4"></div>
       </div>
+      
+      <!-- Gold Particles -->
+      <div class="gold-particles">
+        <div v-for="i in 30" :key="i" class="gold-particle" :style="goldParticleStyle(i)"></div>
+      </div>
+      
+      <!-- Pulse Grid -->
       <div class="pulse-grid">
-        <div v-for="i in 20" :key="i" class="pulse-dot" :style="pulseStyle(i)"></div>
+        <div v-for="i in 25" :key="i" class="pulse-dot" :style="pulseStyle(i)"></div>
       </div>
     </div>
+
+    <!-- Golden Finger Header -->
+    <div class="relative z-10 text-center py-6">
+      <div class="casino-header">
+        <div class="header-stars">
+          <div class="star star-1">⭐</div>
+          <div class="star star-2">⭐</div>
+          <div class="star star-3">⭐</div>
+        </div>
+        <h1 class="casino-title">
+          <span class="golden-text"></span>
+        </h1>
+         
+      </div>
+    </div>
+
     <!-- Falling Tokens Effect -->
     <div v-if="showTokens" class="tokens-container pointer-events-none">
-      <div v-for="n in 40" :key="n" class="falling-token" :style="tokenStyle(n)">
+      <div v-for="n in 50" :key="n" class="falling-token" :style="tokenStyle(n)">
         <div class="token-coin">
-          <div class="token-face token-front">💰</div>
-          <div class="token-face token-back">🪙</div>
+          <div class="token-face token-front">
+            <NuxtImg 
+              :src="lastGameWon ? '/happy-pepe.png' : '/sad-pepe.png'"
+              :alt="lastGameWon ? 'Happy Pepe' : 'Sad Pepe'"
+              class="token-pepe-image"
+              width="30"
+              height="30"
+              loading="lazy"
+            />
+          </div>
+          <div class="token-face token-back">
+            <div class="token-symbol">{{ lastGameWon ? '🏆' : '💰' }}</div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="max-w-2xl mx-auto px-4 py-6">
+
+    <div class="max-w-3xl mx-auto px-3 py-2">
       <!-- Header with Wallet Connection -->
-      <div class="mb-6">
+      <div class="mb-4">
         <WalletConnection />
       </div>
 
-
-
-      <!-- Main Coin -->
-      <div class="flex justify-center items-center mb-8">
-        <div class="flex justify-center items-center w-52 h-52">
-          <AnimatedCoin 
-            :is-flipping="gameState.isFlipping.value"
-            :result="gameState.lastResult.value"
-            @flip-complete="onFlipComplete"
-          />
+      <!-- Game Stats Bar -->
+      <div class="casino-stats-bar mb-4">
+        <div class="stat-item">
+          <div class="stat-label">BALANCE</div>
+          <div class="stat-value">{{ formatBalance(gameState.balance.value) }}</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-label">ROUND</div>
+          <div class="stat-value">{{ gameState.history.value.length + 1 }}</div>
         </div>
       </div>
 
-      <!-- Side Selection Buttons -->
-      <div class="grid grid-cols-2 gap-4 mb-6">
-        <button
-          @click="onSideSelected('heads')"
-          :class="[
-            'relative p-4 rounded-2xl font-bold text-lg transition-all duration-200 glow-button',
-            gameState.selectedSide.value === 'heads'
-              ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg selected-glow'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover-glow'
-          ]"
-        >
-          <div class="flex items-center justify-center space-x-3">
-            <div class="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-              <svg data-v-5dbf0c9a="" class="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 24 24"><path data-v-5dbf0c9a="" d="M5 16L3 14l5.5-5.5L10 10l1.5-1.5L16 13l-2 2M12 7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5M12 2L9 9l3-1 3 1-3-7z"></path></svg>
-            </div>
-            <span>HEADS</span>
+      <!-- Main Coin Container -->
+      <div class="casino-coin-container mb-6">
+        <div class="coin-stage">
+          <div class="stage-lights">
+            <div class="stage-light stage-light-left"></div>
+            <div class="stage-light stage-light-right"></div>
           </div>
-        </button>
-        
-        <button
-          @click="onSideSelected('tails')"
-          :class="[
-            'relative p-4 rounded-2xl font-bold text-lg transition-all duration-200 glow-button',
-            gameState.selectedSide.value === 'tails'
-              ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg selected-glow'
-              : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover-glow'
-          ]"
-        >
-          <div class="flex items-center justify-center space-x-3">
-            <div class="w-8 h-8 bg-gradient-to-br from-gray-300 to-gray-500 rounded-full flex items-center justify-center">
-              <svg data-v-5dbf0c9a="" class="w-4 h-4 text-gray-800" fill="currentColor" viewBox="0 0 24 24"><path data-v-5dbf0c9a="" d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z"></path></svg>
-            </div>
-            <span>TAILS</span>
+          <div class="coin-wrapper">
+            <AnimatedCoin 
+              ref="coinRef"
+              :is-flipping="gameState.isFlipping.value"
+              :result="gameState.lastResult.value"
+              @flip-complete="onFlipComplete"
+            />
           </div>
-        </button>
+        </div>
       </div>
 
-
-
-      <!-- Bet Amount Input -->
-      <div class="mb-6">
-        <div class="relative bg-gray-800 rounded-2xl p-4">
-          <div class="flex items-center">
-            <div class="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mr-3">
-              <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-                <text x="12" y="16" text-anchor="middle" class="text-xs font-bold">$</text>
-              </svg>
+      <!-- Casino Side Selection -->
+      <div class="casino-betting-section mb-4">
+        <div class="betting-header">
+          <h3 class="betting-title">HEADS OR TAILS</h3>
+          <div class="betting-subtitle">Choose Your Side</div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3">
+          <button
+            @click="onSideSelected('heads')"
+            :class="[
+              'casino-side-button heads-button',
+              gameState.selectedSide.value === 'heads' ? 'selected' : ''
+            ]"
+          >
+            <div class="button-glow"></div>
+            <div class="button-content">
+               
+              <div class="button-label">HEADS</div>
+              
             </div>
-            <input
-              v-model.number="betAmount"
-              type="number"
-              placeholder="Enter amount"
-              class="flex-1 bg-transparent text-white placeholder-gray-400 outline-none text-lg"
-              :min="gameState.minBet"
-              :max="gameState.balance.value"
+          </button>
+          
+          <button
+            @click="onSideSelected('tails')"
+            :class="[
+              'casino-side-button tails-button',
+              gameState.selectedSide.value === 'tails' ? 'selected' : ''
+            ]"
+          >
+            <div class="button-glow"></div>
+            <div class="button-content">
+               
+              <div class="button-label">TAILS</div>
+               
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Enhanced Bet Amount Section -->
+      <div class="casino-bet-section mb-4">
+        <div class="bet-container">
+          <div class="bet-header">
+            <div class="bet-title">PLACE YOUR BET</div>
+            <div class="bet-balance">Balance: {{ formatBalance(gameState.balance.value) }}</div>
+          </div>
+          
+          <div class="bet-input-container">
+            <div class="bet-input-wrapper">
+              <div class="bet-icon">
+                <div class="golden-coin">💰</div>
+              </div>
+              <input
+                v-model.number="betAmount"
+                type="number"
+                placeholder="Enter amount"
+                class="bet-input"
+                :min="gameState.minBet"
+                :max="gameState.balance.value"
+              >
+              <div class="bet-currency">TON</div>
+            </div>
+          </div>
+          
+          <!-- Quick Bet Buttons -->
+          <div class="quick-bet-buttons">
+            <button
+              @click="setBetAmount(gameState.minBet)"
+              class="quick-bet-btn"
             >
+              MIN
+            </button>
+            <button
+              @click="setBetAmount(betAmount * 2)"
+              class="quick-bet-btn"
+            >
+              2X
+            </button>
+            <button
+              @click="setBetAmount(betAmount + 50)"
+              class="quick-bet-btn"
+            >
+              +50
+            </button>
+            <button
+              @click="setBetAmount(betAmount + 100)"
+              class="quick-bet-btn"
+            >
+              +100
+            </button>
+            <button
+              @click="setBetAmount(gameState.balance.value)"
+              class="quick-bet-btn max-bet"
+            >
+              MAX
+            </button>
           </div>
-        </div>
-        
-        <!-- Quick Bet Buttons -->
-        <div class="flex justify-between mt-4 space-x-2">
-          <button
-            @click="setBetAmount(gameState.minBet)"
-            class="flex-1 py-2 px-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
-          >
-            Min
-          </button>
-          <button
-            @click="setBetAmount(betAmount + 10)"
-            class="flex-1 py-2 px-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
-          >
-            +10
-          </button>
-          <button
-            @click="setBetAmount(betAmount + 25)"
-            class="flex-1 py-2 px-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
-          >
-            +25
-          </button>
-          <button
-            @click="setBetAmount(betAmount + 50)"
-            class="flex-1 py-2 px-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
-          >
-            +50
-          </button>
-          <button
-            @click="setBetAmount(gameState.balance.value)"
-            class="flex-1 py-2 px-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors"
-          >
-            Max
-          </button>
         </div>
       </div>
 
-      <!-- Play Game Button -->
-      <button
-        @click="flipCoin"
-        :disabled="!canFlip"
-        :class="[
-          'w-full py-4 rounded-2xl font-bold text-lg transition-all duration-200 play-button',
-          canFlip
-            ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white shadow-lg play-glow'
-            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-        ]"
-      >
-        {{ gameState.isFlipping.value ? 'Playing...' : 'Play Game' }}
-      </button>
+      <!-- Enhanced Play Button -->
+      <div class="casino-play-section mb-6">
+        <button
+          @click="flipCoin"
+          :disabled="!canFlip"
+          :class="[
+            'casino-play-button',
+            canFlip ? 'active' : 'disabled'
+          ]"
+        >
+          <div class="play-button-glow"></div>
+          <div class="play-button-content">
+            <div class="play-icon">🎰</div>
+            <div class="play-text">
+              {{ gameState.isFlipping.value ? 'SPINNING...' : 'PLAY NOW!' }}
+            </div>
+            <div class="play-subtext">
+              {{ gameState.isFlipping.value ? 'Good Luck!' : 'Win Big!' }}
+            </div>
+          </div>
+        </button>
+      </div>
 
       <!-- Betting History -->
-      <div class="mt-8">
+      <div class="casino-history-section">
+        <div class="history-header">
+          <h3 class="history-title">🏆 RECENT GAMES</h3>
+        </div>
         <BettingHistory :history="gameState.history.value" />
       </div>
     </div>
@@ -171,6 +250,10 @@ const betAmount = ref(gameState.betAmount.value)
 
 // Tokens state
 const showTokens = ref(false)
+const lastGameWon = ref(false)
+
+// Coin ref for triggering overlays
+const coinRef = ref(null)
 
 // Multiplier options
 const multiplierOptions = [1.94, 1.94, 1.94, 1.94, 1.94, 1.94]
@@ -195,14 +278,27 @@ watch(betAmount, (newAmount) => {
 // Watch for a win to trigger falling tokens and sounds
 watch(() => gameState.history.value[0], (lastGame) => {
   if (lastGame) {
+    lastGameWon.value = lastGame.won
+    
     if (lastGame.won) {
       showTokens.value = true
       soundEffects.playWinSound()
+      
+      // Trigger win overlay on coin
+      if (coinRef.value && coinRef.value.showResult) {
+        coinRef.value.showResult(true)
+      }
+      
       setTimeout(() => {
         showTokens.value = false
-      }, 4000)
+      }, 5000)
     } else {
       soundEffects.playLoseSound()
+      
+      // Trigger lose overlay on coin
+      if (coinRef.value && coinRef.value.showResult) {
+        coinRef.value.showResult(false)
+      }
     }
   }
 })
@@ -229,14 +325,18 @@ const onFlipComplete = (result: 'heads' | 'tails') => {
   gameState.completeFlip(result)
 }
 
+const formatBalance = (amount: number) => {
+  return new Intl.NumberFormat('en-US').format(amount)
+}
+
 // Generate random token styles
 function tokenStyle(n: number) {
   const left = Math.random() * 100
-  const delay = Math.random() * 1.5
+  const delay = Math.random() * 2
   const rotate = Math.random() * 360
-  const rotateSpeed = 3 + Math.random() * 5
-  const size = 24 + Math.random() * 16
-  const duration = 3 + Math.random() * 2
+  const rotateSpeed = 2 + Math.random() * 4
+  const size = 20 + Math.random() * 20
+  const duration = 4 + Math.random() * 3
   return {
     left: `${left}%`,
     animationDelay: `${delay}s`,
@@ -262,9 +362,546 @@ function pulseStyle(n: number) {
     transform: `scale(${scale})`
   }
 }
+
+// Generate gold particle styles
+function goldParticleStyle(n: number) {
+  const left = Math.random() * 100
+  const top = Math.random() * 100
+  const delay = Math.random() * 5
+  const duration = 3 + Math.random() * 4
+  const size = 2 + Math.random() * 4
+  return {
+    left: `${left}%`,
+    top: `${top}%`,
+    animationDelay: `${delay}s`,
+    animationDuration: `${duration}s`,
+    width: `${size}px`,
+    height: `${size}px`
+  }
+}
 </script>
 
 <style scoped>
+/* Casino Header */
+.casino-header {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.header-stars {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+}
+
+.star {
+  font-size: 24px;
+  animation: starTwinkle 2s ease-in-out infinite;
+}
+
+.star-1 { animation-delay: 0s; }
+.star-2 { animation-delay: 0.7s; }
+.star-3 { animation-delay: 1.4s; }
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.casino-title {
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.golden-text {
+  background: linear-gradient(45deg, #FFD700, #FFA500, #FF8C00, #FFD700);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: goldenShine 3s ease-in-out infinite;
+  text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+}
+
+@keyframes goldenShine {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.casino-subtitle {
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.subtitle-text {
+  color: #FFD700;
+  font-weight: 600;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+/* Enhanced Background Effects */
+.spotlight-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.spotlight {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: spotlightMove 8s ease-in-out infinite;
+}
+
+.spotlight-1 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.2), transparent 70%);
+  top: -50px;
+  left: -50px;
+}
+
+.spotlight-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 165, 0, 0.15), transparent 70%);
+  top: 50%;
+  right: -100px;
+  animation-delay: -3s;
+}
+
+.spotlight-3 {
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(255, 140, 0, 0.2), transparent 70%);
+  bottom: -50px;
+  left: 50%;
+  animation-delay: -6s;
+}
+
+@keyframes spotlightMove {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(50px, -30px) scale(1.1); }
+  66% { transform: translate(-30px, 50px) scale(0.9); }
+}
+
+/* Gold Particles */
+.gold-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.gold-particle {
+  position: absolute;
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  border-radius: 50%;
+  animation: goldFloat 6s ease-in-out infinite;
+}
+
+@keyframes goldFloat {
+  0%, 100% { 
+    opacity: 0.3;
+    transform: translateY(0px) scale(1);
+  }
+  50% { 
+    opacity: 0.8;
+    transform: translateY(-20px) scale(1.2);
+  }
+}
+
+/* Casino Stats Bar */
+.casino-stats-bar {
+  display: flex;
+  justify-content: space-around;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 15px;
+  padding: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #FFD700;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: white;
+}
+
+.multiplier-glow {
+  color: #FFD700;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+  animation: multiplierPulse 2s ease-in-out infinite;
+}
+
+@keyframes multiplierPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Casino Coin Stage */
+.casino-coin-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.coin-stage {
+  position: relative;
+  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.1), transparent 70%);
+  border-radius: 50%;
+  padding: 2rem;
+  border: 3px solid rgba(255, 215, 0, 0.3);
+  box-shadow: 
+    0 0 50px rgba(255, 215, 0, 0.2),
+    inset 0 0 50px rgba(255, 215, 0, 0.1);
+}
+
+.stage-lights {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+}
+
+.stage-light {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.6), transparent 70%);
+  animation: stageLightRotate 4s linear infinite;
+}
+
+.stage-light-left {
+  top: 20%;
+  left: -10px;
+}
+
+.stage-light-right {
+  top: 20%;
+  right: -10px;
+  animation-delay: -2s;
+}
+
+@keyframes stageLightRotate {
+  0% { transform: rotate(0deg) translateX(80px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
+}
+
+/* Casino Betting Section */
+.casino-betting-section {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(255, 215, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 16px;
+  padding: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.betting-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.betting-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #FFD700;
+  margin-bottom: 0.25rem;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.betting-subtitle {
+  font-size: 0.8rem;
+  color: #FFA500;
+  font-weight: 500;
+}
+
+.casino-side-button {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.casino-side-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+}
+
+.casino-side-button.selected {
+  border-color: #FFD700;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.1));
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+.button-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.casino-side-button:hover .button-glow {
+  opacity: 1;
+}
+
+.button-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.button-icon {
+  margin-bottom: 0.375rem;
+}
+
+.pepe-icon {
+  font-size: 1.5rem;
+  animation: iconBounce 2s ease-in-out infinite;
+}
+
+@keyframes iconBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.button-label {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #FFD700;
+  margin-bottom: 0.125rem;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+.button-description {
+  font-size: 0.7rem;
+  color: #FFA500;
+  font-weight: 500;
+}
+
+/* Casino Bet Section */
+.casino-bet-section {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(255, 215, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 16px;
+  padding: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.bet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.bet-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #FFD700;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+}
+
+.bet-balance {
+  font-size: 0.8rem;
+  color: #FFA500;
+  font-weight: 600;
+}
+
+.bet-input-container {
+  margin-bottom: 0.75rem;
+}
+
+.bet-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(255, 215, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  padding: 0.6rem;
+  backdrop-filter: blur(5px);
+}
+
+.bet-icon {
+  margin-right: 0.5rem;
+}
+
+.golden-coin {
+  font-size: 1.25rem;
+  animation: coinSpin 3s linear infinite;
+}
+
+@keyframes coinSpin {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.bet-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.bet-input::placeholder {
+  color: rgba(255, 165, 0, 0.6);
+}
+
+.bet-currency {
+  font-size: 0.8rem;
+  color: #FFD700;
+  font-weight: 600;
+}
+
+.quick-bet-buttons {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.quick-bet-btn {
+  flex: 1;
+  padding: 0.375rem 0.75rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.05));
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  color: #FFD700;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.quick-bet-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.1));
+  transform: translateY(-1px);
+}
+
+.max-bet {
+  background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 69, 0, 0.1));
+  border-color: rgba(255, 0, 0, 0.5);
+  color: #FF4500;
+}
+
+/* Casino Play Button */
+.casino-play-section {
+  text-align: center;
+}
+
+.casino-play-button {
+  position: relative;
+  background: linear-gradient(135deg, #FFD700, #FFA500, #FF8C00);
+  border: none;
+  border-radius: 16px;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+  width: 100%;
+  max-width: 350px;
+}
+
+.casino-play-button:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(255, 215, 0, 0.5);
+}
+
+.casino-play-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.play-button-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.casino-play-button:hover:not(.disabled) .play-button-glow {
+  opacity: 1;
+  animation: buttonGlowMove 1.5s ease-in-out infinite;
+}
+
+@keyframes buttonGlowMove {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.play-button-content {
+  position: relative;
+  z-index: 1;
+  color: black;
+  text-align: center;
+}
+
+.play-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.play-text {
+  font-size: 1.25rem;
+  font-weight: 900;
+  margin-bottom: 0.125rem;
+}
+
+.play-subtext {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+/* Casino History Section */
+.casino-history-section {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(255, 215, 0, 0.05));
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 20px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.history-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.history-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #FFD700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
 /* Component-specific animations */
 .flip-enter-active,
 .flip-leave-active {
@@ -305,6 +942,24 @@ function pulseStyle(n: number) {
   align-items: center;
   justify-content: center;
   backface-visibility: hidden;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.token-pepe-image {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+}
+
+.token-symbol {
+  font-size: 20px;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
 }
 
 .token-front {
@@ -510,6 +1165,145 @@ function pulseStyle(n: number) {
       0 0 35px rgba(59, 130, 246, 0.9),
       0 0 70px rgba(59, 130, 246, 0.6),
       0 0 105px rgba(59, 130, 246, 0.4);
+  }
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  .casino-header {
+    margin-bottom: 1rem;
+  }
+  
+  .casino-title {
+    font-size: 2.25rem;
+  }
+  
+  .casino-stats-bar {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .stat-label {
+    font-size: 0.7rem;
+  }
+  
+  .stat-value {
+    font-size: 1rem;
+  }
+  
+  .casino-coin-container {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .coin-stage {
+    padding: 1.5rem;
+  }
+  
+  .casino-betting-section,
+  .casino-bet-section,
+  .casino-history-section {
+    padding: 0.875rem;
+    margin-bottom: 1rem;
+  }
+  
+  .betting-title {
+    font-size: 1.1rem;
+  }
+  
+  .betting-subtitle {
+    font-size: 0.75rem;
+  }
+  
+  .casino-side-button {
+    padding: 0.625rem;
+  }
+  
+  .pepe-icon {
+    font-size: 1.25rem;
+  }
+  
+  .button-label {
+    font-size: 0.9rem;
+  }
+  
+  .button-description {
+    font-size: 0.65rem;
+  }
+  
+  .bet-title {
+    font-size: 0.95rem;
+  }
+  
+  .bet-balance {
+    font-size: 0.75rem;
+  }
+  
+  .bet-input-wrapper {
+    padding: 0.5rem;
+  }
+  
+  .golden-coin {
+    font-size: 1.1rem;
+  }
+  
+  .bet-input {
+    font-size: 0.9rem;
+  }
+  
+  .bet-currency {
+    font-size: 0.75rem;
+  }
+  
+  .quick-bet-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+  }
+  
+  .casino-play-button {
+    padding: 0.875rem 1.75rem;
+    border-radius: 14px;
+  }
+  
+  .play-icon {
+    font-size: 1.25rem;
+  }
+  
+  .play-text {
+    font-size: 1.1rem;
+  }
+  
+  .play-subtext {
+    font-size: 0.75rem;
+  }
+  
+  .history-title {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .casino-title {
+    font-size: 2rem;
+  }
+  
+  .casino-stats-bar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .stat-item {
+    flex: 1;
+    min-width: 80px;
+  }
+  
+  .quick-bet-buttons {
+    gap: 0.25rem;
+  }
+  
+  .quick-bet-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
   }
 }
 </style> 
