@@ -26,28 +26,28 @@
             <div class="result-text">
               <span class="result-label">{{ game.won ? 'WIN' : 'LOSE' }}</span>
               <span class="result-side">{{ game.selectedSide?.toUpperCase() }}</span>
-            </div>
+          </div>
           </div>
           <div class="game-time">{{ formatTime(game.timestamp) }}</div>
-        </div>
-        
+    </div>
+
         <div class="game-details">
           <div class="detail-item">
             <span class="detail-label">Bet:</span>
             <span class="detail-value bet-amount">{{ formatAmount(game.betAmount) }}</span>
-          </div>
+        </div>
           <div class="detail-item">
             <span class="detail-label">Result:</span>
             <span class="detail-value">{{ game.result?.toUpperCase() }}</span>
-          </div>
+      </div>
           <div class="detail-item">
             <span class="detail-label">Payout:</span>
             <span class="detail-value" :class="{ 'payout-win': game.won, 'payout-lose': !game.won }">
               {{ game.won ? '+' : '-' }}{{ formatAmount(game.payout) }}
-            </span>
-          </div>
-        </div>
-        
+                    </span>
+                  </div>
+                </div>
+                
         <div class="game-footer">
           <div class="coin-visual">
             <div class="mini-coin" :class="game.result">
@@ -127,7 +127,7 @@ const formatTime = (timestamp: number) => {
   const minutes = Math.floor(diff / 60000)
   const hours = Math.floor(minutes / 60)
   const days = Math.floor(hours / 24)
-  
+
   if (days > 0) return `${days}d ago`
   if (hours > 0) return `${hours}h ago`
   if (minutes > 0) return `${minutes}m ago`

@@ -176,8 +176,8 @@ function particleStyle(index: number) {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 220px;
-  height: 220px;
+  width: 150px;
+  height: 150px;
   margin: 0 auto;
   position: relative;
 }
@@ -205,7 +205,7 @@ function particleStyle(index: number) {
 }
 
 .coin.flipping {
-  animation: enhanced3DFlip 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+  animation: enhanced3DFlip 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
 }
 
 .coin.show-heads {

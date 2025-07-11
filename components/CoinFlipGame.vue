@@ -29,7 +29,7 @@
     </div>
 
     <!-- Golden Finger Header -->
-    <div class="relative z-10 text-center py-6">
+    <div class="relative z-10 text-center py-3">
       <div class="casino-header">
         <div class="header-stars">
           <div class="star star-1">⭐</div>
@@ -56,11 +56,11 @@
               height="30"
               loading="lazy"
             />
-          </div>
+        </div>
           <div class="token-face token-back">
             <div class="token-symbol">{{ lastGameWon ? '🏆' : '💰' }}</div>
-          </div>
-        </div>
+      </div>
+    </div>
       </div>
     </div>
 
@@ -91,12 +91,12 @@
             <div class="stage-light stage-light-right"></div>
           </div>
           <div class="coin-wrapper">
-            <AnimatedCoin 
+          <AnimatedCoin 
               ref="coinRef"
-              :is-flipping="gameState.isFlipping.value"
-              :result="gameState.lastResult.value"
-              @flip-complete="onFlipComplete"
-            />
+            :is-flipping="gameState.isFlipping.value"
+            :result="gameState.lastResult.value"
+            @flip-complete="onFlipComplete"
+          />
           </div>
         </div>
       </div>
@@ -104,14 +104,14 @@
       <!-- Casino Side Selection -->
       <div class="casino-betting-section mb-4">
         <div class="betting-header">
-          <h3 class="betting-title">HEADS OR TAILS</h3>
+       
           <div class="betting-subtitle">Choose Your Side</div>
         </div>
         
         <div class="grid grid-cols-2 gap-3">
-          <button
-            @click="onSideSelected('heads')"
-            :class="[
+        <button
+          @click="onSideSelected('heads')"
+          :class="[
               'casino-side-button heads-button',
               gameState.selectedSide.value === 'heads' ? 'selected' : ''
             ]"
@@ -121,12 +121,12 @@
                
               <div class="button-label">HEADS</div>
               
-            </div>
-          </button>
-          
-          <button
-            @click="onSideSelected('tails')"
-            :class="[
+          </div>
+        </button>
+        
+        <button
+          @click="onSideSelected('tails')"
+          :class="[
               'casino-side-button tails-button',
               gameState.selectedSide.value === 'tails' ? 'selected' : ''
             ]"
@@ -136,8 +136,8 @@
                
               <div class="button-label">TAILS</div>
                
-            </div>
-          </button>
+          </div>
+        </button>
         </div>
       </div>
 
@@ -153,76 +153,74 @@
             <div class="bet-input-wrapper">
               <div class="bet-icon">
                 <div class="golden-coin">💰</div>
-              </div>
-              <input
-                v-model.number="betAmount"
-                type="number"
-                placeholder="Enter amount"
-                class="bet-input"
-                :min="gameState.minBet"
-                :max="gameState.balance.value"
-              >
-              <div class="bet-currency">TON</div>
             </div>
-          </div>
-          
-          <!-- Quick Bet Buttons -->
-          <div class="quick-bet-buttons">
-            <button
-              @click="setBetAmount(gameState.minBet)"
-              class="quick-bet-btn"
+            <input
+              v-model.number="betAmount"
+              type="number"
+              placeholder="Enter amount"
+                class="bet-input"
+              :min="gameState.minBet"
+              :max="gameState.balance.value"
             >
+              <div class="bet-currency">TON</div>
+          </div>
+        </div>
+        
+        <!-- Quick Bet Buttons -->
+          <div class="quick-bet-buttons">
+          <button
+            @click="setBetAmount(gameState.minBet)"
+              class="quick-bet-btn"
+          >
               MIN
-            </button>
-            <button
+          </button>
+          <button
               @click="setBetAmount(betAmount * 2)"
               class="quick-bet-btn"
-            >
+          >
               2X
-            </button>
-            <button
+          </button>
+          <button
               @click="setBetAmount(betAmount + 50)"
               class="quick-bet-btn"
-            >
+          >
               +50
-            </button>
-            <button
+          </button>
+          <button
               @click="setBetAmount(betAmount + 100)"
               class="quick-bet-btn"
-            >
+          >
               +100
-            </button>
-            <button
-              @click="setBetAmount(gameState.balance.value)"
+          </button>
+          <button
+            @click="setBetAmount(gameState.balance.value)"
               class="quick-bet-btn max-bet"
-            >
+          >
               MAX
-            </button>
+          </button>
           </div>
         </div>
       </div>
 
       <!-- Enhanced Play Button -->
       <div class="casino-play-section mb-6">
-        <button
-          @click="flipCoin"
-          :disabled="!canFlip"
-          :class="[
+      <button
+        @click="flipCoin"
+        :disabled="!canFlip"
+        :class="[
             'casino-play-button',
             canFlip ? 'active' : 'disabled'
           ]"
         >
           <div class="play-button-glow"></div>
           <div class="play-button-content">
-            <div class="play-icon">🎰</div>
+            
             <div class="play-text">
               {{ gameState.isFlipping.value ? 'SPINNING...' : 'PLAY NOW!' }}
             </div>
-            <div class="play-subtext">
-              {{ gameState.isFlipping.value ? 'Good Luck!' : 'Win Big!' }}
-            </div>
+           
           </div>
-        </button>
+      </button>
       </div>
 
       <!-- Betting History -->
@@ -398,7 +396,7 @@ function goldParticleStyle(n: number) {
 }
 
 .star {
-  font-size: 24px;
+  font-size: 20px;
   animation: starTwinkle 2s ease-in-out infinite;
 }
 
@@ -679,7 +677,7 @@ function goldParticleStyle(n: number) {
 
 .pepe-icon {
   font-size: 1.5rem;
-  animation: iconBounce 2s ease-in-out infinite;
+  animation: iconBounce 0.4s ease-in-out infinite;
 }
 
 @keyframes iconBounce {
@@ -751,7 +749,7 @@ function goldParticleStyle(n: number) {
 
 .golden-coin {
   font-size: 1.25rem;
-  animation: coinSpin 3s linear infinite;
+  animation: coinSpin 2s linear infinite;
 }
 
 @keyframes coinSpin {
