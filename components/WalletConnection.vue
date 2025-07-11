@@ -1,11 +1,11 @@
 <template>
-  <div class="wallet-connection">
+  <div class="wallet-connection flex">
     <!-- Wallet Connect Button -->
-    <div v-if="!tonWallet.isConnected.value" class="mb-4">
+    <div v-if="!tonWallet.isConnected.value" class="mb-4  flex flex-col justify-center items-center w-[100%]">
       <button
         @click="handleConnectClick"
         :disabled="tonWallet.isConnecting.value"
-        class="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white rounded-xl font-medium transition-all duration-200 flex items-center justify-center space-x-2"
+        class="w-[85%] py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white rounded-xl font-medium transition-all duration-200 flex items-center justify-center space-x-2"
       >
         <svg v-if="!tonWallet.isConnecting.value" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>

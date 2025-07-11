@@ -54,9 +54,7 @@
 
     <div class="max-w-3xl mx-auto px-3 py-2">
       <!-- Header with Wallet Connection -->
-      <div class="mb-4">
-        <WalletConnection />
-      </div>
+      
 
       
 
@@ -198,6 +196,10 @@
            
           </div>
       </button>
+      </div>
+
+      <div class="mb-4">
+        <WalletConnection />
       </div>
 
       <!-- Game Stats Bar -->
